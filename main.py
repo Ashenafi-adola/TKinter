@@ -53,7 +53,7 @@ def master():
     currentResponse = requests.get(currenturl)
     currentWeather = currentResponse.json()
     weather = response.json()
-
+    print(currentWeather["weather"][0]["icon"])
     region2 = Label(
         main,
         width=95,
@@ -180,6 +180,7 @@ def master():
     #=======================================
     text = f"{weather['list'][7]['dt_txt']}"[-9:-3]
     Icon8 = PhotoImage(file=f"{weather['list'][7]["weather"][0]['icon']}.png")
+
     hour8 = info(Icon8,text)
     hour8.place(x=635,y=40)
     tempratur8 = theLabel(f"{weather['list'][7]['main']['temp']}°C")
@@ -208,5 +209,6 @@ searchButton = Button(
 searchButton.grid(row=0,column=1)
 search.grid(column=0,row=0)
 region1.place(x=20,y=15)
+
 
 app.mainloop()

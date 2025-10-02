@@ -181,7 +181,7 @@ def master():
     text = f"{weather['list'][7]['dt_txt']}"[-9:-3]
     Icon8 = PhotoImage(file=f"{weather['list'][7]["weather"][0]['icon']}.png")
 
-    hour8 = info(Icon8,text)
+    hour8 = info(text)
     hour8.place(x=635,y=40)
     tempratur8 = theLabel(f"{weather['list'][7]['main']['temp']}°C")
     tempratur8.place(x=635,y=145)
@@ -189,22 +189,22 @@ def master():
     #=======================================
 
 region1 = Label(
-    main,
-    width=900,
-    height=2,
-    bg="#333a46",
+main,
+width=900,
+height=2,
+bg="#333a46",
 )
 
 search = Entry(
-    region1,
-    width=110,
-    bg="#333a46",
-    fg="#FFFFFF",
+region1,
+width=110,
+bg="#333a46",
+fg="#FFFFFF",
 )
 searchButton = Button(
-    region1,
-    text="Search",
-    command=master
+region1,
+text="Search",
+command=master
 )
 searchButton.grid(row=0,column=1)
 search.grid(column=0,row=0)

@@ -1,13 +1,11 @@
 import requests
 from tkinter import *
-import json
 
 app = Tk()
 app.config(background="#131a24")
 app.geometry("1200x650")
 
 apiKey = "a94b5ab426afd7bceddf051bde36cd48"
-
 main = Frame(
     app,
     width=1200,
@@ -15,8 +13,7 @@ main = Frame(
     bg="#131a24"
 ) 
 main.pack()
-
-def theRegion():
+def Region():
     return Label(
                 main,
                 width=105,
@@ -24,23 +21,52 @@ def theRegion():
                 bg="#262f3e"
             )
 
-region3 = theRegion()
-region3.place(x=20,y=250)
+def theLabel(temp):
+    return Label(
+            region3,
+            text=temp,
+            font=("Arial",12,"bold"),
+            height=1,
+            width=8,
+            fg='#d8dce5',
+            bg="#151d2c",
+            padx=1,
+            pady=5,
+        )
 
-region4 =  theRegion()
+def info(icon,text):
+    return Label(
+        region3,
+        width=80,
+        height=100,
+        font=("Arial",12,"bold"),
+        text=text,
+        image=icon,
+        compound="bottom",
+        fg='#d8dce5',
+        bg="#151d2c"
+    )
 
-region4.place(x=20,y=450)
+def daily(icon,text):
+    return Label(
+        region5,
+        image=icon,
+        text=text,
+        compound="right",
+        fg='#d8dce5',
+        bg="#151d2c"
+    )
 
-region5 = Label(
-    main,
-    width=47,
-    height=38,
-    bg="#262f3e"
-)
-
-region5.place(x=825,y=60)
+hourly_icons = []
+daily_icons = []
+daily_text = []
+hourly_text = []
 
 def master():
+    global hourly_icons
+    global daily_icons
+    global daily_text
+    global hourly_text
     city = search.get()
     if city != '':
         city = city
@@ -53,7 +79,6 @@ def master():
     currentResponse = requests.get(currenturl)
     currentWeather = currentResponse.json()
     weather = response.json()
-    print(currentWeather["weather"][0]["icon"])
     region2 = Label(
         main,
         width=95,
@@ -65,8 +90,7 @@ def master():
         fg='#d8dce5',
         bg="#131a24",
         text=f"{currentWeather['name']}",
-        font=("Arial",35,"bold"),
-        
+        font=("Arial",35,"bold"), 
     )
     city.place(x=5,y=5)
     cond = Label(
@@ -85,108 +109,92 @@ def master():
         bg="#131a24",
         font=("Arial",40,"bold"),
         )
+    for i in range(8):
+        icon = PhotoImage(file=f"{weather['list'][i]["weather"][0]['icon']}.png")
+        text = f"{weather['list'][i]['dt_txt']}"[-9:-3]
+        hourly_icons.append(icon)
+        hourly_text.append(text)
+        hour = info(hourly_icons[i],hourly_text[i])
+        hour.place(x=5 + i*90,y=40)
+        tempratur1 = theLabel(f"{weather['list'][i]['main']['temp']}°C")
+        tempratur1.place(x=5 + i*90,y=145)
+
     mainIcon = PhotoImage(file=f"{currentWeather["weather"][0]["icon"]}.png")
+    hourly_icons.append(mainIcon)
     icon = Label(
         region2,
-        image=mainIcon,
+        image=hourly_icons[8],
         bg="#131a24",
     )
     icon.place(x=460,y=20)
     temp.place(x=5,y=120)
     region2.place(y=50,x=20)
 
-    def theLabel(temp):
-        return Label(
-                region3,
-                text=temp,
-                font=("Arial",12,"bold"),
-                height=1,
-                width=8,
-                padx=1,
-                pady=5,
-            )
+    for i in range(5):
+        icon = PhotoImage(file=f"{weather['list'][i*8]["weather"][0]['icon']}.png")
+        text = f"{weather['list'][i*8]['dt_txt']}"[:10]
+        daily_icons.append(icon)
+        daily_text.append(text)
+        day = daily(hourly_icons[i],daily_text[i])
+        day.place(x=10,y=5 + i*115)
+    
+#-------------------end of function------------
+region3 = Region()
+heading = Label(
+    region3,
+    text="TODAY'S FORECAST",
+    fg='#d8dce5',
+    bg="#262f3e"
+)
+heading.place(x=2,y=4)
+region3.place(x=20,y=250)
+region4 =  Region()
+heading = Label(
+    region4,
+    text="AIR CONDITION",
+    fg='#d8dce5',
+    bg="#262f3e"
+) 
+heading.place(x=2,y=4)
+temp = PhotoImage(file="temp.png")
+temp_feel = Label(
+    region4,
+    image=temp,
+    bg="#262f3e",
+    text="Real feel",
+    fg="#B1B1B1",
+    compound="left",
+    font=("Arial",12,"bold")
+)
+temp_feel.place(x=10,y=30)
+tempLabel = Label(
+    region4,
+    text="feel",
+    fg='#d8dce5',
+    bg="#262f3e"
+)
+tempLabel.place(x=4,y=70)
+wind = PhotoImage(file="wind.png")
+wind_speed = Label(
+    region4,
+    image=wind,
+    bg="#262f3e",
+    text="wind speed",
+    fg="#acaaaa",
+    compound="left",
+    font=("Arial",12,"bold")
+)
+wind_speed.place(x=400,y=30)
+region4.place(x=20,y=450)
 
-    def info(icon,text):
-        return Label(
-            region3,
-            width=80,
-            height=100,
-            font=("Arial",12,"bold"),
-            text=text,
-            image=icon,
-            compound="bottom"  
-        )
-    #=======================================
+region5 = Label(
+    main,
+    height=38,
+    width=53,
+    bg="#262f3e",
+)
 
-    Icon1 = PhotoImage(file=f"{weather['list'][0]["weather"][0]['icon']}.png")
-    text = f"{weather['list'][0]['dt_txt']}"[-9:-3]
-    hour1 = info(Icon1,text)
-    hour1.place(x=5,y=40)
-    tempratur1 = theLabel(f"{weather['list'][0]['main']['temp']}°C")
-    tempratur1.place(x=5,y=145)
-    #=======================================
-
-    Icon2 = PhotoImage(file=f"{weather['list'][1]["weather"][0]['icon']}.png")
-    text = f"{weather['list'][1]['dt_txt']}"[-9:-3]
-    hour2 = info(Icon2,text)
-    hour2.place(x=95,y=40)
-    tempratur2 = theLabel(f"{weather['list'][1]['main']['temp']}°C")
-    tempratur2.place(x=95,y=145)
-
-    #=======================================
-
-    text = f"{weather['list'][2]['dt_txt']}"[-9:-3]
-    Icon3 = PhotoImage(file=f"{weather['list'][2]["weather"][0]['icon']}.png")
-    hour3 = info(Icon3,text)
-    hour3.place(x=185,y=40)
-    tempratur3 = theLabel(f"{weather['list'][2]['main']['temp']}°C")
-    tempratur3.place(x=185,y=145)
-
-    #=======================================
-
-    text = f"{weather['list'][3]['dt_txt']}"[-9:-3]
-    Icon4 = PhotoImage(file=f"{weather['list'][3]["weather"][0]['icon']}.png")
-    hour4 = info(Icon4,text)
-    hour4.place(x=275,y=40)
-    tempratur4 = theLabel(f"{weather['list'][3]['main']['temp']}°C")
-    tempratur4.place(x=275,y=145)
-
-    #=======================================
-
-    text = f"{weather['list'][4]['dt_txt']}"[-9:-3]
-    Icon5 = PhotoImage(file=f"{weather['list'][4]["weather"][0]['icon']}.png")
-    hour5 = info(Icon5,text)
-    hour5.place(x=365,y=40)
-    tempratur5 = theLabel(f"{weather['list'][4]['main']['temp']}°C")
-    tempratur5.place(x=365,y=145)
-
-    #=======================================
-    text = f"{weather['list'][5]['dt_txt']}"[-9:-3]
-    Icon6 = PhotoImage(file=f"{weather['list'][5]["weather"][0]['icon']}.png")
-    hour6 = info(Icon6,text)
-    hour6.place(x=455,y=40)
-    tempratur6 = theLabel(f"{weather['list'][5]['main']['temp']}°C")
-    tempratur6.place(x=455,y=145)
-
-    #=======================================
-
-    text = f"{weather['list'][6]['dt_txt']}"[-9:-3]
-    Icon7 = PhotoImage(file=f"{weather['list'][6]["weather"][0]['icon']}.png")
-    hour7 = info(Icon7,text)
-    hour7.place(x=545,y=40)
-    tempratur7 = theLabel(f"{weather['list'][6]['main']['temp']}°C")
-    tempratur7.place(x=545,y=145)
-
-    #=======================================
-    text = f"{weather['list'][7]['dt_txt']}"[-9:-3]
-    Icon8 = PhotoImage(file=f"{weather['list'][7]["weather"][0]['icon']}.png")
-
-    hour8 = info(text)
-    hour8.place(x=635,y=40)
-    tempratur8 = theLabel(f"{weather['list'][7]['main']['temp']}°C")
-    tempratur8.place(x=635,y=145)
-
-    #=======================================
+region5.place(x=790,y=60)
 
 region1 = Label(
 main,

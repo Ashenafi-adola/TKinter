@@ -1,10 +1,11 @@
 import requests
 from tkinter import *
+from datetime import datetime
 
 app = Tk()
 app.config(background="#131a24")
 app.geometry("1200x650")
-
+app.title("Weather")
 apiKey = "a94b5ab426afd7bceddf051bde36cd48"
 main = Frame(
     app,
@@ -47,26 +48,39 @@ def info(icon,text):
         bg="#151d2c"
     )
 
-def daily(icon,text):
+def dailyCondition(icon,text):
     return Label(
         region5,
+        width=140,
+        height=88,
         image=icon,
         text=text,
         compound="right",
         fg='#d8dce5',
-        bg="#151d2c"
+        bg="#151d2c",
+        font=("Arial",12,"bold"),
+        padx=10
     )
 
-hourly_icons = []
-daily_icons = []
+def dailyWeather(condition,temp_max,temp_min):
+    return Label(
+        region5,
+        width=23,
+        height=6,
+        text=f" {condition}         {temp_max} / {temp_min}",
+        font=("Arial",9),
+        fg='#d8dce5',
+        bg="#151d2c",
+        padx=0,
+        pady=0,
+    )
+
+hourly_icons = [0,0,0,0,0,0,0,0]
+daily_icons = [0,0,0,0,0]
 daily_text = []
 hourly_text = []
 
 def master():
-    global hourly_icons
-    global daily_icons
-    global daily_text
-    global hourly_text
     city = search.get()
     if city != '':
         city = city
@@ -109,10 +123,26 @@ def master():
         bg="#131a24",
         font=("Arial",40,"bold"),
         )
+    heading = Label(
+        region3,
+        text="TODAY'S FORECAST",
+        fg='#d8dce5',
+        bg="#262f3e"
+    )
+    heading.place(x=2,y=4)
+
+    heading = Label(
+        region4,
+        text="AIR CONDITION",
+        fg='#d8dce5',
+        bg="#262f3e"
+    ) 
+    heading.place(x=2,y=4)
+
     for i in range(8):
         icon = PhotoImage(file=f"{weather['list'][i]["weather"][0]['icon']}.png")
         text = f"{weather['list'][i]['dt_txt']}"[-9:-3]
-        hourly_icons.append(icon)
+        hourly_icons[i] = icon
         hourly_text.append(text)
         hour = info(hourly_icons[i],hourly_text[i])
         hour.place(x=5 + i*90,y=40)
@@ -133,29 +163,50 @@ def master():
     for i in range(5):
         icon = PhotoImage(file=f"{weather['list'][i*8]["weather"][0]['icon']}.png")
         text = f"{weather['list'][i*8]['dt_txt']}"[:10]
-        daily_icons.append(icon)
-        daily_text.append(text)
-        day = daily(hourly_icons[i],daily_text[i])
+        date = datetime.strptime(text, "%Y-%m-%d").strftime("%A")
+        daily_icons[i] = icon
+        daily_text.append(date)
+        day = dailyCondition(hourly_icons[i],daily_text[i])
+        condtions = dailyWeather(weather['list'][i*8]['weather'][0]['description'],str(weather['list'][i*8]['main']['temp_max'])[:2],str(weather['list'][i*8]['main']['temp_min'])[:2])
+        condtions.place(x=170,y=5 + i*115)
         day.place(x=10,y=5 + i*115)
-    
+
+    temp = PhotoImage(file="temp.png")
+    daily_icons.append(temp)
+    temp_feel = Label(
+        region4,
+        image=daily_icons[5],
+        bg="#262f3e",
+        text="Real feel",
+        fg="#B1B1B1",
+        compound="left",
+        font=("Arial",12,"bold")
+    )
+    temp_feel.place(x=10,y=30)
+
+    realFeel = Label(
+        region4,
+        text=f"{weather['list'][i*8]['main']['feels_like']}°C",
+        bg="#262f3e",
+        fg="#acaaaa",
+        font=("Arial",24,"bold")
+    )
+
+    realFeel.place(x=10,y=70)
+    windSpeed = Label(
+        region4,
+        text=f"{weather['list'][i*8]['wind']['speed']} Km/h",
+        bg="#262f3e",
+        fg="#acaaaa",
+        font=("Arial",24,"bold")
+    )
+    windSpeed.place(x=400,y=70)
 #-------------------end of function------------
 region3 = Region()
-heading = Label(
-    region3,
-    text="TODAY'S FORECAST",
-    fg='#d8dce5',
-    bg="#262f3e"
-)
-heading.place(x=2,y=4)
+
 region3.place(x=20,y=250)
 region4 =  Region()
-heading = Label(
-    region4,
-    text="AIR CONDITION",
-    fg='#d8dce5',
-    bg="#262f3e"
-) 
-heading.place(x=2,y=4)
+
 temp = PhotoImage(file="temp.png")
 temp_feel = Label(
     region4,
@@ -167,13 +218,7 @@ temp_feel = Label(
     font=("Arial",12,"bold")
 )
 temp_feel.place(x=10,y=30)
-tempLabel = Label(
-    region4,
-    text="feel",
-    fg='#d8dce5',
-    bg="#262f3e"
-)
-tempLabel.place(x=4,y=70)
+
 wind = PhotoImage(file="wind.png")
 wind_speed = Label(
     region4,
@@ -197,26 +242,24 @@ region5 = Label(
 region5.place(x=790,y=60)
 
 region1 = Label(
-main,
-width=900,
-height=2,
-bg="#333a46",
+    main,
+    width=900,
+    height=2,
+    bg="#333a46",
 )
-
 search = Entry(
-region1,
-width=110,
-bg="#333a46",
-fg="#FFFFFF",
+    region1,
+    width=110,
+    bg="#333a46",
+    fg="#FFFFFF",
 )
 searchButton = Button(
-region1,
-text="Search",
-command=master
+    region1,
+    text="Search",
+    command=master
 )
 searchButton.grid(row=0,column=1)
 search.grid(column=0,row=0)
 region1.place(x=20,y=15)
-
 
 app.mainloop()
